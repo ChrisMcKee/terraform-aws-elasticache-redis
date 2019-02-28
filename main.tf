@@ -122,7 +122,7 @@ module "dns" {
   source    = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.2.1"
   enabled   = "${var.enabled == "true" && length(var.zone_id) > 0 ? "true" : "false"}"
   namespace = "${var.namespace}"
-  name      = "${var.name}"
+  name      = "${length(var.zone_name) > 0 ? var.zone_name : var.name}"
   stage     = "${var.stage}"
   ttl       = 60
   zone_id   = "${var.zone_id}"

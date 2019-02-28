@@ -130,6 +130,11 @@ variable "zone_id" {
   description = "Route53 DNS Zone id"
 }
 
+variable "zone_name" {
+  default     = ""
+  description = "dns name / prefix, if this isn't set but zone_id is set name will be used"
+}
+
 variable "delimiter" {
   type        = "string"
   default     = "-"

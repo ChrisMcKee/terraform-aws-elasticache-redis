@@ -131,7 +131,8 @@ Available targets:
 | tags | Additional tags (_e.g._ map("BusinessUnit","ABC") | map | `<map>` | no |
 | transit_encryption_enabled | Enable TLS | string | `true` | no |
 | vpc_id | AWS VPC id | string | `REQUIRED` | no |
-| zone_id | Route53 DNS Zone id | string | `` | no |
+| zone_id | Route53 DNS Zone id | string |  | no |
+| zone_name | dns name / prefix, if this isn't set but zone_id is set name will be used | string |  | no |
 
 ## Outputs
 
