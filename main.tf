@@ -14,7 +14,6 @@ module "label" {
 # Security Group Resources
 #
 resource "aws_security_group" "default" {
-  count  = "${var.enabled == "true" ? 1 : 0}"
   vpc_id = "${var.vpc_id}"
   name   = "${module.label.id}"
 
@@ -36,20 +35,17 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_elasticache_subnet_group" "default" {
-  count      = "${var.enabled == "true" ? 1 : 0}"
   name       = "${module.label.id}"
   subnet_ids = ["${var.subnets}"]
 }
 
 resource "aws_elasticache_parameter_group" "default" {
-  count     = "${var.enabled == "true" ? 1 : 0}"
   name      = "${module.label.id}"
   family    = "${var.family}"
   parameter = "${var.parameter}"
 }
 
 resource "aws_elasticache_replication_group" "default" {
-  count = "${var.enabled == "true" ? 1 : 0}"
 
   auth_token                    = "${var.auth_token}"
   replication_group_id          = "${var.replication_group_id == "" ? module.label.id : var.replication_group_id}"
@@ -75,7 +71,6 @@ resource "aws_elasticache_replication_group" "default" {
 # CloudWatch Resources
 #
 resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
-  count               = "${var.enabled == "true" ? 1 : 0}"
   alarm_name          = "${module.label.id}-cpu-utilization"
   alarm_description   = "Redis cluster CPU utilization"
   comparison_operator = "GreaterThanThreshold"
@@ -97,7 +92,6 @@ resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cache_memory" {
-  count               = "${var.enabled == "true" ? 1 : 0}"
   alarm_name          = "${module.label.id}-freeable-memory"
   alarm_description   = "Redis cluster freeable memory"
   comparison_operator = "LessThanThreshold"
@@ -120,7 +114,7 @@ resource "aws_cloudwatch_metric_alarm" "cache_memory" {
 
 module "dns" {
   source    = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.2.1"
-  enabled   = "${var.enabled == "true" && length(var.zone_id) > 0 ? "true" : "false"}"
+  enabled   = "${length(var.zone_id) > 0 ? "true" : "false"}"
   namespace = "${var.namespace}"
   name      = "${length(var.zone_name) > 0 ? var.zone_name : var.name}"
   stage     = "${var.stage}"
