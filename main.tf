@@ -31,7 +31,7 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = "${module.label.tags}"
+  #tags = "${module.label.tags}"
 }
 
 resource "aws_elasticache_subnet_group" "default" {
@@ -64,7 +64,7 @@ resource "aws_elasticache_replication_group" "default" {
   at_rest_encryption_enabled    = "${var.at_rest_encryption_enabled}"
   transit_encryption_enabled    = "${var.transit_encryption_enabled}"
 
-  tags = "${module.label.tags}"
+  #tags = "${module.label.tags}"
 }
 
 #
