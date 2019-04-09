@@ -1,6 +1,6 @@
 # Define composite variables for resources
 variable "id" {}
-variable "tags" {}
+#variable "tags" {}
 
 #
 # Security Group Resources
