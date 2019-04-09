@@ -12,8 +12,3 @@ output "port" {
   value       = "${var.port}"
   description = "Redis port"
 }
-
-output "host" {
-  value       = "${module.dns.hostname}"
-  description = "Redis host"
-}
