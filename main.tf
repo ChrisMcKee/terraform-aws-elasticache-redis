@@ -1,10 +1,12 @@
 # Define composite variables for resources
 variable "id" {}
+variable "tags" {}
 
 #
 # Security Group Resources
 #
 resource "aws_security_group" "default" {
+  count  = "${var.enabled == "true" ? 1 : 0}"
   vpc_id = "${var.vpc_id}"
   name   = "${var.id}"
 
@@ -22,21 +24,24 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  #tags = "${module.label.tags}"
+  tags = "${var.tags}"
 }
 
 resource "aws_elasticache_subnet_group" "default" {
+  count      = "${var.enabled == "true" ? 1 : 0}"
   name       = "${var.id}"
   subnet_ids = ["${var.subnets}"]
 }
 
 resource "aws_elasticache_parameter_group" "default" {
+  count     = "${var.enabled == "true" ? 1 : 0}"
   name      = "${var.id}"
   family    = "${var.family}"
   parameter = "${var.parameter}"
 }
 
 resource "aws_elasticache_replication_group" "default" {
+  count = "${var.enabled == "true" ? 1 : 0}"
 
   auth_token                    = "${var.auth_token}"
   replication_group_id          = "${var.replication_group_id == "" ? var.id : var.replication_group_id}"
@@ -55,12 +60,14 @@ resource "aws_elasticache_replication_group" "default" {
   at_rest_encryption_enabled    = "${var.at_rest_encryption_enabled}"
   transit_encryption_enabled    = "${var.transit_encryption_enabled}"
 
+  tags = "${var.tags}"
 }
 
 #
 # CloudWatch Resources
 #
 resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
+  count               = "${var.enabled == "true" ? 1 : 0}"
   alarm_name          = "${var.id}-cpu-utilization"
   alarm_description   = "Redis cluster CPU utilization"
   comparison_operator = "GreaterThanThreshold"
@@ -82,6 +89,7 @@ resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cache_memory" {
+  count               = "${var.enabled == "true" ? 1 : 0}"
   alarm_name          = "${var.id}-freeable-memory"
   alarm_description   = "Redis cluster freeable memory"
   comparison_operator = "LessThanThreshold"
@@ -104,9 +112,9 @@ resource "aws_cloudwatch_metric_alarm" "cache_memory" {
 
 module "dns" {
   source    = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.2.1"
-  enabled   = "${length(var.zone_id) > 0 ? "true" : "false"}"
+  enabled   = "${var.enabled == "true" && length(var.zone_id) > 0 ? "true" : "false"}"
   namespace = "${var.namespace}"
-  name      = "${length(var.zone_name) > 0 ? var.zone_name : var.name}"
+  name      = "${var.name}"
   stage     = "${var.stage}"
   ttl       = 60
   zone_id   = "${var.zone_id}"
