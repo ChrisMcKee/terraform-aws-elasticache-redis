@@ -1,5 +1,5 @@
 output "id" {
-  value       = "${join("", aws_elasticache_replication_group.default.*.id)}"
+  value       = "${join("", aws_elasticache_replication_group.default.id)}"
   description = "Redis cluster id"
 }
 
