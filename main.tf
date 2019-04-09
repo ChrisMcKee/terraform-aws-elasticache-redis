@@ -1,21 +1,12 @@
 # Define composite variables for resources
-module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.7.0"
-  enabled    = "${var.enabled}"
-  namespace  = "${var.namespace}"
-  name       = "${var.name}"
-  stage      = "${var.stage}"
-  delimiter  = "${var.delimiter}"
-  attributes = "${var.attributes}"
-  tags       = "${var.tags}"
-}
+variable "id" {}
 
 #
 # Security Group Resources
 #
 resource "aws_security_group" "default" {
   vpc_id = "${var.vpc_id}"
-  name   = "${module.label.id}"
+  name   = "${var.id}"
 
   ingress {
     from_port       = "${var.port}"              # Redis
@@ -35,12 +26,12 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_elasticache_subnet_group" "default" {
-  name       = "${module.label.id}"
+  name       = "${var.id}"
   subnet_ids = ["${var.subnets}"]
 }
 
 resource "aws_elasticache_parameter_group" "default" {
-  name      = "${module.label.id}"
+  name      = "${var.id}"
   family    = "${var.family}"
   parameter = "${var.parameter}"
 }
@@ -49,7 +40,7 @@ resource "aws_elasticache_replication_group" "default" {
 
   auth_token                    = "${var.auth_token}"
   replication_group_id          = "${var.replication_group_id == "" ? module.label.id : var.replication_group_id}"
-  replication_group_description = "${module.label.id}"
+  replication_group_description = "${var.id}"
   node_type                     = "${var.instance_type}"
   number_cache_clusters         = "${var.cluster_size}"
   port                          = "${var.port}"
@@ -71,7 +62,7 @@ resource "aws_elasticache_replication_group" "default" {
 # CloudWatch Resources
 #
 resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
-  alarm_name          = "${module.label.id}-cpu-utilization"
+  alarm_name          = "${var.id}-cpu-utilization"
   alarm_description   = "Redis cluster CPU utilization"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -92,7 +83,7 @@ resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cache_memory" {
-  alarm_name          = "${module.label.id}-freeable-memory"
+  alarm_name          = "${var.id}-freeable-memory"
   alarm_description   = "Redis cluster freeable memory"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
@@ -104,7 +95,7 @@ resource "aws_cloudwatch_metric_alarm" "cache_memory" {
   threshold = "${var.alarm_memory_threshold_bytes}"
 
   dimensions {
-    CacheClusterId = "${module.label.id}"
+    CacheClusterId = "${var.id}"
   }
 
   alarm_actions = ["${var.alarm_actions}"]
