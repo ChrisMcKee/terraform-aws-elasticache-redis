@@ -39,7 +39,7 @@ resource "aws_elasticache_parameter_group" "default" {
 resource "aws_elasticache_replication_group" "default" {
 
   auth_token                    = "${var.auth_token}"
-  replication_group_id          = "${var.replication_group_id == "" ? module.label.id : var.replication_group_id}"
+  replication_group_id          = "${var.replication_group_id == "" ? var.id : var.replication_group_id}"
   replication_group_description = "${var.id}"
   node_type                     = "${var.instance_type}"
   number_cache_clusters         = "${var.cluster_size}"
@@ -55,7 +55,6 @@ resource "aws_elasticache_replication_group" "default" {
   at_rest_encryption_enabled    = "${var.at_rest_encryption_enabled}"
   transit_encryption_enabled    = "${var.transit_encryption_enabled}"
 
-  #tags = "${module.label.tags}"
 }
 
 #
@@ -74,7 +73,7 @@ resource "aws_cloudwatch_metric_alarm" "cache_cpu" {
   threshold = "${var.alarm_cpu_threshold_percent}"
 
   dimensions {
-    CacheClusterId = "${module.label.id}"
+    CacheClusterId = "${var.id}"
   }
 
   alarm_actions = ["${var.alarm_actions}"]
